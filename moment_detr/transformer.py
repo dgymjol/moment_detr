@@ -20,7 +20,7 @@ class Transformer(nn.Module):
     def __init__(self, d_model=512, nhead=8, num_encoder_layers=6,
                  num_decoder_layers=6, dim_feedforward=2048, dropout=0.1,
                  activation="relu", normalize_before=False,
-                 return_intermediate_dec=False):
+                 return_intermediate_dec=False, m_classes=None, tgt_embed=False, num_queries=10):
         super().__init__()
 
         # TransformerEncoderLayerThin
@@ -40,6 +40,15 @@ class Transformer(nn.Module):
 
         self.d_model = d_model
         self.nhead = nhead
+
+        self.num_queries = num_queries
+
+        self.m_classes = m_classes
+        self.tgt_embed = tgt_embed
+
+        if m_classes is not None and self.tgt_embed:
+            self.num_patterns = len(m_classes[1:-1].split(','))
+            self.patterns = nn.Embedding(self.num_patterns, d_model)
 
     def _reset_parameters(self):
         for p in self.parameters():
@@ -63,7 +72,13 @@ class Transformer(nn.Module):
         pos_embed = pos_embed.permute(1, 0, 2)   # (L, batch_size, d)
         query_embed = query_embed.unsqueeze(1).repeat(1, bs, 1)  # (#queries, batch_size, d)
 
-        tgt = torch.zeros_like(query_embed)
+
+        if self.m_classes is not None and self.tgt_embed:
+            tgt = self.patterns.weight[:, None, None, :].repeat(1, self.num_queries, bs, 1).flatten(0, 1)
+            query_embed = query_embed.repeat(self.num_patterns, 1, 1)
+        else:
+            tgt = torch.zeros_like(query_embed)
+        
         memory = self.encoder(src, src_key_padding_mask=mask, pos=pos_embed)  # (L, batch_size, d)
         hs = self.decoder(tgt, memory, memory_key_padding_mask=mask,
                           pos=pos_embed, query_pos=query_embed)  # (#layers, #queries, batch_size, d)
@@ -457,6 +472,9 @@ def build_transformer(args):
         num_decoder_layers=args.dec_layers,
         normalize_before=args.pre_norm,
         return_intermediate_dec=True,
+        m_classes=args.m_classes,
+        tgt_embed=args.tgt_embed,
+        num_queries=args.num_queries,
     )
 
 

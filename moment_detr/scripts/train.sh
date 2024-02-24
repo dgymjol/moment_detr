@@ -50,5 +50,25 @@ PYTHONPATH=$PYTHONPATH:. python moment_detr/train.py \
 --t_feat_dim ${t_feat_dim} \
 --bsz ${bsz} \
 --results_root ${results_root} \
---exp_id ${exp_id} \
+--exp_id "org_40" \
+--num_queries 40 \
 ${@:1}
+
+
+# PYTHONPATH=$PYTHONPATH:. python moment_detr/train.py \
+# --dset_name ${dset_name} \
+# --ctx_mode ${ctx_mode} \
+# --train_path ${train_path} \
+# --eval_path ${eval_path} \
+# --eval_split_name ${eval_split_name} \
+# --v_feat_dirs ${v_feat_dirs[@]} \
+# --v_feat_dim ${v_feat_dim} \
+# --t_feat_dir ${t_feat_dir} \
+# --t_feat_dim ${t_feat_dim} \
+# --bsz ${bsz} \
+# --results_root ${results_root} \
+# --exp_id "tgt_cc" \
+# --m_classes "[10, 30, 70, 150]" \
+# --tgt_embed \
+# --cc_matching \
+# ${@:1}

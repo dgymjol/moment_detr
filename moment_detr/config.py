@@ -102,6 +102,22 @@ class BaseOptions(object):
         parser.add_argument('--num_queries', default=10, type=int,
                             help="Number of query slots")
         parser.add_argument('--pre_norm', action='store_true')
+
+        parser.add_argument('--m_classes', type=str, default=None)
+        parser.add_argument('--cls_both', action="store_true")
+        parser.add_argument('--score_fg', action="store_true")
+        parser.add_argument('--tgt_embed', action='store_true')
+        parser.add_argument('--cc_matching', action="store_true")
+
+        parser.add_argument("--label_loss_type", default="ce", type=str, choices=['focal', 'ce'])
+        parser.add_argument("--focal_alpha", type=float, default=0.25)
+        parser.add_argument("--focal_gamma", type=float, default=2.0)
+
+        parser.add_argument("--aux_label_loss_type", default="ce", type=str, choices=['focal', 'ce'])
+        parser.add_argument("--aux_focal_alpha", type=float, default=0.25)
+        parser.add_argument("--aux_focal_gamma", type=float, default=2.0)
+
+
         # other model configs
         parser.add_argument("--n_input_proj", type=int, default=2, help="#layers to encoder input")
         parser.add_argument("--contrastive_hdim", type=int, default=64, help="dim for contrastive embeddings")
